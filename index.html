@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f6f7f9" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Pressione" />
+  <title>Diario Pressione</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="./icon-180.png" />
+  <link rel="icon" href="./icon-192.png" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">3–9 ottobre 2026</p>
+        <h1>Diario pressione</h1>
+        <p class="subtitle">Due rilevazioni al giorno: mattina e sera.</p>
+      </div>
+      <div class="hero-icon" aria-hidden="true">♥</div>
+    </header>
+
+    <section class="privacy-note" aria-label="Privacy">
+      <strong>Dati privati.</strong> Le misurazioni restano su questo dispositivo e non vengono inviate online automaticamente.
+    </section>
+
+    <section class="summary-grid" aria-label="Riepilogo">
+      <article class="summary-card"><span>Registrazioni</span><strong id="progressValue">0/14</strong></article>
+      <article class="summary-card"><span>Media massima</span><strong id="avgSys">—</strong></article>
+      <article class="summary-card"><span>Media minima</span><strong id="avgDia">—</strong></article>
+      <article class="summary-card"><span>Media battiti</span><strong id="avgPulse">—</strong></article>
+    </section>
+
+    <section class="quick-entry" id="quickEntry">
+      <div class="section-heading">
+        <div><p class="eyebrow">Rilevazione attuale</p><h2 id="quickTitle">Oggi</h2></div>
+        <span class="slot-pill" id="quickSlot">Mattina</span>
+      </div>
+      <form id="quickForm" class="entry-form">
+        <div class="field-grid">
+          <label><span>Massima</span><input id="quickSys" type="number" inputmode="numeric" min="60" max="260" placeholder="es. 125" required /><small>mmHg</small></label>
+          <label><span>Minima</span><input id="quickDia" type="number" inputmode="numeric" min="40" max="160" placeholder="es. 80" required /><small>mmHg</small></label>
+          <label><span>Battiti</span><input id="quickPulse" type="number" inputmode="numeric" min="30" max="220" placeholder="es. 68" required /><small>bpm</small></label>
+        </div>
+        <button class="primary-btn" type="submit">Salva rilevazione</button>
+        <p class="form-message" id="formMessage" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="history-section">
+      <div class="section-heading history-heading"><div><p class="eyebrow">Storico completo</p><h2>Dal 3 al 9 ottobre</h2></div></div>
+      <div id="daysList" class="days-list"></div>
+    </section>
+
+    <section class="share-section">
+      <div class="section-heading"><div><p class="eyebrow">Per il medico</p><h2>Esporta il riepilogo</h2></div></div>
+      <div class="recipient-grid">
+        <label class="patient-field"><span>Nome paziente <em>(facoltativo)</em></span><input id="patientName" type="text" autocomplete="name" placeholder="Nome e cognome" /></label>
+        <label class="patient-field"><span>Email destinatario <em>(facoltativa)</em></span><input id="recipientEmail" type="email" inputmode="email" autocomplete="email" placeholder="es. medico@email.it" /></label>
+      </div>
+      <div class="share-actions">
+        <button id="emailBtn" class="primary-btn" type="button">Invia per email</button>
+        <button id="csvBtn" class="secondary-btn" type="button">Scarica CSV</button>
+        <button id="printBtn" class="secondary-btn" type="button">Stampa / PDF</button>
+      </div>
+      <p class="share-help">L’email contiene una tabella testuale leggibile con data, fascia, massima, minima e battiti.</p>
+    </section>
+
+    <section class="danger-zone"><button id="resetBtn" class="text-btn" type="button">Cancella tutte le registrazioni</button></section>
+    <footer><p>Diario personale di misurazione. Non sostituisce il parere del medico.</p></footer>
+  </main>
+
+  <template id="dayTemplate">
+    <article class="day-card">
+      <div class="day-header"><div><span class="day-weekday"></span><strong class="day-date"></strong></div><span class="day-status"></span></div>
+      <div class="slot-list"></div>
+    </article>
+  </template>
+  <script src="./app.js" defer></script>
+</body>
+</html>
