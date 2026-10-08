@@ -19,7 +19,35 @@ function renderAll(){renderSummary();renderDays();renderQuick()}
 quickForm.addEventListener('submit',e=>{e.preventDefault();const sys=Number($('#quickSys').value),dia=Number($('#quickDia').value),pulse=Number($('#quickPulse').value),err=validate(sys,dia,pulse),m=$('#formMessage');if(err){m.textContent=err;m.classList.add('error');return}saveReading(activeTarget.date,activeTarget.slot,{sys,dia,pulse});m.textContent='Rilevazione salvata sul dispositivo.';m.classList.remove('error');if(activeTarget.date===localISODate()&&activeTarget.slot==='morning')activeTarget={date:activeTarget.date,slot:'evening'};renderSummary();renderDays();setTimeout(renderQuick,500)});
 function allRows(){const d=getData(),rows=[];DATES.forEach(date=>['morning','evening'].forEach(slot=>rows.push({date,slot,...(d[date]?.[slot]||{})})));return rows}
 function averages(rows){const p=rows.filter(r=>Number.isFinite(Number(r.sys)));if(!p.length)return null;const a=k=>Math.round(p.reduce((s,r)=>s+Number(r[k]),0)/p.length);return{count:p.length,sys:a('sys'),dia:a('dia'),pulse:a('pulse')}}
-function textReport(){const rows=allRows(),avg=averages(rows),lines=['DIARIO DELLA PRESSIONE','Periodo: 3–9 ottobre 2026'];if(patientName.value.trim())lines.push(`Paziente: ${patientName.value.trim()}`);lines.push('','Data       Fascia    Massima  Minima  Battiti','------------------------------------------------');rows.forEach(r=>{const date=new Intl.DateTimeFormat('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}).format(parseLocalDate(r.date));lines.push(`${date}  ${slotLabel(r.slot).padEnd(9)} ${r.sys??'—'}       ${r.dia??'—'}      ${r.pulse??'—'}`)});if(avg)lines.push('',`Medie su ${avg.count} rilevazioni: massima ${avg.sys} mmHg, minima ${avg.dia} mmHg, battiti ${avg.pulse} bpm.`);return lines.join('\n')}
+function textReport(){
+  const rows=allRows(),avg=averages(rows),name=patientName.value.trim();
+  const lines=['DIARIO DELLA PRESSIONE','Periodo: 3–9 ottobre 2026'];
+  if(name)lines.push(`Paziente: ${name}`);
+  lines.push('');
+  if(avg){
+    lines.push('RIEPILOGO');
+    lines.push(`Rilevazioni registrate: ${avg.count} su ${rows.length}`);
+    lines.push(`Media pressione: ${avg.sys}/${avg.dia} mmHg`);
+    lines.push(`Media frequenza cardiaca: ${avg.pulse} bpm`);
+    lines.push('');
+  }
+  lines.push('RILEVAZIONI GIORNALIERE');
+  DATES.forEach(date=>{
+    const dayRows=rows.filter(r=>r.date===date);
+    const dayLabel=new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'numeric',month:'long'}).format(parseLocalDate(date));
+    lines.push('');
+    lines.push(dayLabel.charAt(0).toUpperCase()+dayLabel.slice(1));
+    dayRows.forEach(r=>{
+      if(Number.isFinite(Number(r.sys))){
+        lines.push(`${slotLabel(r.slot)}: ${r.sys}/${r.dia} mmHg  •  ${r.pulse} bpm`);
+      }else{
+        lines.push(`${slotLabel(r.slot)}: non registrata`);
+      }
+    });
+  });
+  lines.push('','—','Report generato dal Diario Pressione');
+  return lines.join('\n');
+}
 $('#emailBtn').onclick=()=>{location.href=`mailto:${encodeURIComponent(recipientEmail.value.trim())}?subject=${encodeURIComponent('Diario pressione 3-9 ottobre 2026')}&body=${encodeURIComponent(textReport())}`};
 $('#csvBtn').onclick=()=>{const rows=allRows(),lines=['Data;Fascia;Massima_mmHg;Minima_mmHg;Battiti_bpm'];rows.forEach(r=>lines.push([r.date,slotLabel(r.slot),r.sys??'',r.dia??'',r.pulse??''].join(';')));const blob=new Blob(['\ufeff'+lines.join('\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='diario-pressione-3-9-ottobre-2026.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
 $('#printBtn').onclick=()=>print();
